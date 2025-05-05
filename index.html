@@ -1,0 +1,151 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solitary Solicitudes</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Helvetica, Arial, sans-serif;
+      background-color: #333333;
+      color: #ffffff;
+      line-height: 1.6;
+      text-align: center;
+    }
+    header {
+      background-color: #1a1a1a;
+      padding: 20px;
+      border-bottom: 2px solid #8b0000;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+      color: #ffffff;
+    }
+    nav {
+      background-color: #262626;
+      padding: 10px;
+    }
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1em;
+    }
+    nav a:hover {
+      color: #8b0000;
+    }
+    section {
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    section h2 {
+      color: #ffffff;
+      font-size: 1.8em;
+      border-bottom: 1px solid #8b0000;
+      padding-bottom: 10px;
+    }
+    section p {
+      font-size: 1.1em;
+    }
+    .image-placeholder {
+      background-color: #4d4d4d;
+      height: 200px;
+      line-height: 200px;
+      color: #cccccc;
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+    footer {
+      background-color: #1a1a1a;
+      padding: 20px;
+      font-size: 0.9em;
+      color: #cccccc;
+    }
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.8em;
+      }
+      nav a {
+        display: block;
+        margin: 10px 0;
+      }
+      section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Solitary Solicitudes</h1>
+  </header>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#about-film">About the Film</a>
+    <a href="#about-filmmaker">About the Filmmaker</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <section id="home">
+    <h2>A Tragicomic Arthouse Short</h2>
+    <p>Solitary Solicitudes (~25 minutes) follows a man’s gray, repetitive life—coffee, oatmeal, odd rituals—unraveling into surreal violence and confession. Shot in Alabama, its stark aesthetic and vivid blood amplify psychological depth.</p>
+    <div class="image-placeholder">[Placeholder: Gray apartment or oatmeal close-up]</div>
+  </section>
+  <section id="about-film">
+    <h2>About the Film</h2>
+    <p>This tragicomic arthouse short blends parody and psychological drama. A man’s monotonous routines in a textureless world spiral into a neighbor’s massacre and a haunting confession. With practical effects (blood rigs, natural light), it’s a striking indie debut targeting Sundance, Sidewalk Film Festival, and MUBI.</p>
+  </section>
+  <section id="about-filmmaker">
+    <h2>About the Filmmaker</h2>
+    <p>A first-time filmmaker and sole proprietor based in Alabama, I’m passionately managing every aspect of Solitary Solicitudes. With meticulous planning and a love for psychological storytelling, I’m bringing raw authenticity to this dark, human tale.</p>
+  </section>
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>For inquiries, email: <a href="mailto:solitarysolicitudes@gmail.com">solitarysolicitudes@gmail.com</a></p>
+  </section>
+  <footer>
+    <p>&copy; 2025 Solitary Solicitudes. All rights reserved.</p>
+  </footer>
+</body>
+</html>
